@@ -58,13 +58,21 @@ class DashboardService
 
     private function revenueChart(int $months=6): array
     {
-        return Payment::where('payment_status','completed')
-            ->where('paid_at','>=',now()->subMonths($months)->startOfMonth())
-            ->selectRaw("DATE_FORMAT(paid_at,'%b %Y') as label, SUM(amount) as total")
-            ->groupBy(DB::raw("DATE_FORMAT(paid_at,'%Y-%m')"),'label')
-            ->orderBy(DB::raw("DATE_FORMAT(paid_at,'%Y-%m')"))
-            ->pluck('total','label')
-            ->toArray();
+        return Payment::where('payment_status', 'completed')
+    ->where('paid_at', '>=', now()->subMonths($months)->startOfMonth())
+    ->get()
+    ->groupBy(function ($payment) {
+        return $payment->paid_at->format('Y-m'); // grouping key
+    })
+    ->map(function ($group) {
+        return [
+            'label' => $group->first()->paid_at->format('M Y'),
+            'total' => $group->sum('amount'),
+        ];
+    })
+    ->sortKeys() // ensures chronological order
+    ->pluck('total', 'label')
+    ->toArray();
     }
 
     private function topServices(int $limit=5): array

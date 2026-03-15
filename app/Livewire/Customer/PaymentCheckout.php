@@ -12,43 +12,76 @@ use Livewire\Component;
 #[Title('Pay Invoice')]
 class PaymentCheckout extends Component
 {
-    public Invoice $invoice;
-    public string  $gateway='paystack';
-    public string  $clientSecret='';
-    public bool    $processing=false;
-    public bool    $paid=false;
+    // Store the ID, not the model — Livewire serialises public properties
+    // between requests; Eloquent models must be re-fetched each time
+    public int    $invoiceId;
+    public string $gateway      = 'paystack';
+    public string $clientSecret = '';
+    public bool   $processing   = false;
+    public bool   $paid         = false;
 
-    public function mount(int $invoiceId): void
+    /**
+     * Route: /customer/checkout/{invoice}
+     * Livewire matches the route segment name → parameter name.
+     * We accept Invoice via model binding so Laravel resolves it,
+     * then we store only the ID.
+     */
+    public function mount(Invoice $invoice): void
     {
-        $invoice=Invoice::with('booking.customer.user')->findOrFail($invoiceId);
-        abort_unless($invoice->booking->customer->user_id===auth()->id(),403);
-        abort_if($invoice->isPaid(),400,'Invoice already paid.');
-        $this->invoice=$invoice;
-        $this->gateway=config('services.default_gateway','paystack');
+        // Authorise: only the booking's customer can pay
+        abort_unless(
+            $invoice->booking->customer->user_id === auth()->id(),
+            403,
+            'You are not authorised to pay this invoice.'
+        );
+
+        abort_if($invoice->isPaid(), 400, 'This invoice has already been paid.');
+
+        $this->invoiceId = $invoice->id;
+        $this->gateway   = config('services.default_gateway', 'paystack');
+    }
+
+    // Re-fetch the invoice fresh on every request
+    private function getInvoice(): Invoice
+    {
+        return Invoice::with('booking.items.service', 'booking.customer.user', 'payment')
+            ->findOrFail($this->invoiceId);
     }
 
     public function initializeStripe(PaymentService $paymentService): void
     {
-        $this->processing=true;
-        $data=$paymentService->createStripeIntent($this->invoice);
-        $this->clientSecret=$data['client_secret'];
-        $this->processing=false;
+        $this->processing = true;
+
+        try {
+            $data = $paymentService->createStripeIntent($this->getInvoice());
+            $this->clientSecret = $data['client_secret'];
+        } catch (\Exception $e) {
+            $this->dispatch('notify', type: 'error', message: 'Stripe init failed: ' . $e->getMessage());
+        }
+
+        $this->processing = false;
     }
 
     public function payWithPaystack(PaymentService $paymentService): void
     {
-        $this->processing=true;
+        $this->processing = true;
+
         try {
-            $data=$paymentService->initializePaystack($this->invoice,auth()->user()->email);
+            $data = $paymentService->initializePaystack(
+                $this->getInvoice(),
+                auth()->user()->email
+            );
             $this->redirect($data['authorization_url']);
         } catch (\Exception $e) {
-            $this->dispatch('notify',type:'error',message:'Payment failed: '.$e->getMessage());
-            $this->processing=false;
+            $this->dispatch('notify', type: 'error', message: 'Payment failed: ' . $e->getMessage());
+            $this->processing = false;
         }
     }
 
     public function render()
     {
-        return view('livewire.customer.payment-checkout');
+        $invoice = $this->getInvoice();
+
+        return view('livewire.customer.payment-checkout', compact('invoice'));
     }
 }

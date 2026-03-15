@@ -46,11 +46,21 @@ class ReportsDashboard extends Component
             'by_method' => Payment::where('payment_status','completed')->where('paid_at','>=',$start)
                 ->selectRaw('payment_method, SUM(amount) as total')->groupBy('payment_method')
                 ->pluck('total','payment_method')->toArray(),
-            'trend'     => Payment::where('payment_status','completed')->where('paid_at','>=',now()->subMonths(6))
-                ->selectRaw("DATE_FORMAT(paid_at,'%b') as month, SUM(amount) as total")
-                ->groupBy(DB::raw("DATE_FORMAT(paid_at,'%Y-%m')"),'month')
-                ->orderBy(DB::raw("DATE_FORMAT(paid_at,'%Y-%m')"))
-                ->pluck('total','month')->toArray(),
+            'trend'     => Payment::where('payment_status', 'completed')
+    ->where('paid_at', '>=', now()->subMonths(6))
+    ->get()
+    ->groupBy(function ($payment) {
+        return $payment->paid_at->format('Y-m'); // grouping key
+    })
+    ->map(function ($group) {
+        return [
+            'month' => $group->first()->paid_at->format('M'),
+            'total' => $group->sum('amount'),
+        ];
+    })
+    ->sortKeys() // ensures correct month order
+    ->pluck('total', 'month')
+    ->toArray()
         ];
     }
 

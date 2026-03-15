@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LaundryItem extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'laundry_order_id', 'garment_type', 'quantity', 'service_type', 'status',
     ];

@@ -12,7 +12,8 @@
 <nav class="bg-white shadow-sm sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
-            <a href="{{ route('customer.dashboard') }}" class="font-bold text-indigo-600 text-lg">🧹 CleanPro</a>
+            <a href="{{ route('customer.dashboard') }}" class="font-bold text-indigo-600 text-lg">
+                <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" class="h-10 w-10"></a>
             <div class="flex items-center gap-6 text-sm">
                 <a href="{{ route('customer.dashboard') }}" class="text-gray-600 hover:text-indigo-600">Dashboard</a>
                 <a href="{{ route('customer.bookings') }}" class="text-gray-600 hover:text-indigo-600">Bookings</a>

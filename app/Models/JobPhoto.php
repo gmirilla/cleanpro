@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class JobPhoto extends Model
 {
+    
     protected $fillable = ['booking_id', 'uploaded_by', 'path', 'type', 'caption'];
 
     public function booking(): BelongsTo  { return $this->belongsTo(Booking::class); }
