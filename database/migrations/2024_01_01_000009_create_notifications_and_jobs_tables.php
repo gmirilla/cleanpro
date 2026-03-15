@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::create('jobs', function (Blueprint $table) {
+        Schema::create('jobs_old', function (Blueprint $table) {
             $table->id();
             $table->string('queue')->index();
             $table->longText('payload');
@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->unsignedInteger('created_at');
         });
 
-        Schema::create('failed_jobs', function (Blueprint $table) {
+        Schema::create('failed_jobs_old', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
             $table->text('connection');
@@ -40,7 +40,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('notifications');
-        Schema::dropIfExists('jobs');
-        Schema::dropIfExists('failed_jobs');
+        Schema::dropIfExists('jobs_old');
+        Schema::dropIfExists('failed_jobs_old');
     }
 };
