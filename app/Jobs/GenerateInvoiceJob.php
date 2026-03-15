@@ -20,9 +20,18 @@ class GenerateInvoiceJob implements ShouldQueue
 
     public function handle(InvoiceService $invoiceService): void
     {
-        $booking = Booking::find($this->booking->id);
-        if ($booking && $booking->isCompleted()) {
-            $invoiceService->generateFromBooking($booking);
+        $booking = Booking::with('invoice')->find($this->booking->id);
+
+        if (!$booking) return;
+
+        // Don't create a duplicate
+        if ($booking->invoice) return;
+
+        // Only generate for confirmed or completed bookings
+        if (!in_array($booking->status, ['confirmed', 'assigned', 'in_progress', 'completed'])) {
+            return;
         }
+
+        $invoiceService->generateFromBooking($booking);
     }
 }

@@ -23,9 +23,6 @@ class BookingService
 
     /**
      * Create a new booking with items.
-     *
-     * @param  array{customer_id:int, address_id:?int, service_date:string,
-     *               notes:?string, items:array<array{service_id:int, quantity:int, price:float}>} $data
      */
     public function create(array $data): Booking
     {
@@ -51,9 +48,7 @@ class BookingService
 
             $booking->recalculateTotal();
 
-            AssignStaffJob::dispatch($booking)->delay(now()->addSeconds(10));
-
-            // Reminder 24 h before service
+            // Reminder 24 h before service date
             SendBookingReminderJob::dispatch($booking)
                 ->delay($booking->service_date->subHours(24));
 
@@ -63,17 +58,36 @@ class BookingService
         });
     }
 
+    /**
+     * Update booking status with appropriate side-effects.
+     *
+     * Invoice generation timing:
+     *   - 'confirmed' → generate invoice immediately so customer can pay
+     *   - 'completed' → if no invoice yet (e.g. cash jobs), generate one now
+     */
     public function updateStatus(Booking $booking, string $status, array $extra = []): void
     {
         $updates = array_merge(['status' => $status], $extra);
 
         if ($status === 'confirmed') {
             $updates['confirmed_at'] = now();
+
+            // ── Generate invoice at confirmation so customer can pay ──
+            // Dispatched with a small delay so the DB transaction above commits first
+            GenerateInvoiceJob::dispatch($booking)->delay(now()->addSeconds(3));
+
+            // Auto-assign staff once booking is confirmed
+            AssignStaffJob::dispatch($booking)->delay(now()->addSeconds(5));
         }
 
         if ($status === 'completed') {
             $updates['completed_at'] = now();
-            GenerateInvoiceJob::dispatch($booking);
+
+            // Safety net: generate invoice if one doesn't exist yet
+            // (e.g. cash bookings that bypassed online payment)
+            if (!$booking->invoice) {
+                GenerateInvoiceJob::dispatch($booking)->delay(now()->addSeconds(3));
+            }
         }
 
         $booking->update($updates);
@@ -104,6 +118,11 @@ class BookingService
 
             if ($booking->assignedStaff) {
                 $booking->assignedStaff->update(['availability_status' => 'available']);
+            }
+
+            // Cancel the invoice if it exists and hasn't been paid
+            if ($booking->invoice && !$booking->invoice->isPaid()) {
+                $booking->invoice->update(['status' => 'cancelled']);
             }
         });
 
