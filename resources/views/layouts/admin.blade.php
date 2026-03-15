@@ -12,8 +12,8 @@
 <div class="flex h-screen overflow-hidden">
     <aside class="hidden md:flex md:flex-shrink-0">
         <div class="flex flex-col w-64 bg-gray-900">
-            <div class="flex items-center h-16 px-6 bg-gray-800 flex-shrink-0"><img src="{{ asset('assets/img/logo.png') }}" alt="Logo" class="h-10 w-10"> 
-                <span class="text-white font-bold text-lg">Spring Cleaning Services</span>
+            <div class="flex items-center h-16 px-6 bg-gray-800 flex-shrink-0">
+                <span class="text-white font-bold text-lg">🧹 CleanPro</span>
             </div>
             <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                 @php
@@ -68,7 +68,12 @@
             @if(session('error'))
                 <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{{ session('error') }}</div>
             @endif
-            {{ $slot }}
+            
+    @hasSection('content')
+        @yield('content')
+    @else
+        {{ $slot ?? '' }}
+    @endif
         </main>
     </div>
 </div>

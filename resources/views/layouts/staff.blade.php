@@ -40,7 +40,12 @@
             <h1 class="text-xl font-semibold text-gray-800">{{ $title ?? 'Tasks' }}</h1>
         </header>
         <main class="flex-1 overflow-y-auto p-6">
-            {{ $slot }}
+            
+    @hasSection('content')
+        @yield('content')
+    @else
+        {{ $slot ?? '' }}
+    @endif
         </main>
     </div>
 </div>
