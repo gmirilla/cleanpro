@@ -101,4 +101,9 @@ class LaundryItem extends Model
             default     => 'gray',
         };
     }
+
+public static function activeGarmentTypes(): array
+{
+    return \App\Models\GarmentPrice::activeOptions(); // ['shirt' => 'Shirt', ...]
+}
 }

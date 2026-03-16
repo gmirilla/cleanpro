@@ -26,6 +26,7 @@
                         ['route'=>'admin.services',        'label'=>'Services',       'icon'=>'🧺'],
                         ['route'=>'admin.laundry-orders',  'label'=>'Laundry Orders', 'icon'=>'👕'],
                         ['route'=>'admin.invoices',        'label'=>'Invoices',       'icon'=>'🧾'],
+                        ['route' => 'admin.garment-prices', 'label' => 'Garment Prices', 'icon' => '🏷️'],
                         ['route'=>'admin.reports',         'label'=>'Reports',        'icon'=>'📈'],
                     ];
                 @endphp

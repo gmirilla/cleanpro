@@ -179,7 +179,7 @@
                                 <label class="text-xs text-gray-400 sm:hidden mb-1 block">Garment</label>
                                 <select wire:model.live="laundryItems.{{ $i }}.garment_type"
                                         class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm bg-white focus:ring-2 focus:ring-indigo-400 focus:outline-none">
-                                    @foreach(\App\Models\LaundryItem::$garmentTypes as $type)
+                                    @foreach(LaundryItem::activeGarmentTypes() as $type)
                                         <option value="{{ $type }}">{{ ucfirst($type) }}</option>
                                     @endforeach
                                 </select>

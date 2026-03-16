@@ -10,6 +10,7 @@ use App\Livewire\Admin\CompanyDashboard;
 use App\Livewire\Admin\CustomerManager;
 use App\Livewire\Admin\InvoiceViewer;
 use App\Livewire\Admin\LaundryOrderManager;
+use App\Livewire\Admin\GarmentPriceManager;
 use App\Livewire\Admin\ReportsDashboard;
 use App\Livewire\Admin\ServiceManager;
 use App\Livewire\Admin\StaffManager;
@@ -50,7 +51,10 @@ Route::middleware(['auth', 'role:super_admin,admin'])
         Route::get('/laundry-orders', LaundryOrderManager::class)->name('laundry-orders');
         Route::get('/invoices',       InvoiceViewer::class)->name('invoices');
         Route::get('/reports',        ReportsDashboard::class)->name('reports');
+        Route::get('/garment-prices', GarmentPriceManager::class)->name('garment-prices');
     });
+
+
 
 // ── Staff ───────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:staff'])
