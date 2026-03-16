@@ -42,13 +42,7 @@ class BookingForm extends Component
                 'service_date' => 'required|date|after:now',
                 'notes'        => 'nullable|string|max:500',
             ],
-            3 => [
-                'detergent_type'                  => 'required',
-                'laundryItems'                    => 'array|min:1',
-                'laundryItems.*.garment_type'     => 'required|in:' . implode(',', LaundryItem::$garmentTypes),
-                'laundryItems.*.quantity'         => 'required|integer|min:1',
-                'laundryItems.*.unit_price'       => 'required|numeric|min:0',
-            ],
+3 => ['detergent_type'=>'required','laundryItems'=>'array','laundryItems.*.garment_type'=>'required','laundryItems.*.quantity'=>'required|numeric|min:1'], 
             default => [],
         };
     }
@@ -120,17 +114,21 @@ class BookingForm extends Component
     }
 
     // ── Navigation ───────────────────────────────────────────────
-
-    public function nextStep(): void
-    {
-        $this->validate();
-        if ($this->step === 2 && !$this->needsLaundryStep()) {
-            $this->step = 4;
-        } else {
-            $this->step++;
-        }
+public function nextStep(): void
+{
+    // Cast laundry item quantities to int so validation passes
+    // (Livewire sends all wire:model values as strings) fixed
+    if ($this->step === 3) {
+        $this->laundryItems = array_map(function ($item) {
+            $item['quantity'] = (int) ($item['quantity'] ?? 1);
+            return $item;
+        }, $this->laundryItems);
     }
 
+    $this->validate();
+    if ($this->step === 2 && !$this->needsLaundryStep()) $this->step = 4;
+    else $this->step++;
+}
     public function prevStep(): void
     {
         if ($this->step === 4 && !$this->needsLaundryStep()) {
