@@ -7,14 +7,44 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        {{--
+            ┌─────────────────────────────────────────────────────────┐
+            │  CRITICAL CSS ONLY — nothing render-blocking beyond     │
+            │  this point in <head>                                   │
+            └─────────────────────────────────────────────────────────┘
+        --}}
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        {{-- 1. Preconnect so the DNS + TLS handshake starts immediately --}}
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+
+        {{-- 2. Preload the font stylesheet so it's fetched with high priority --}}
+        <link rel="preload"
+              as="style"
+              href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap">
+
+        {{-- 3. Load font stylesheet asynchronously — onload swaps media to 'all'
+                 so it never blocks the initial render --}}
+        <link rel="stylesheet"
+              href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap"
+              media="print"
+              onload="this.media='all'">
+
+        {{-- 4. Fallback for browsers with JS disabled --}}
+        <noscript>
+            <link rel="stylesheet"
+                  href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap">
+        </noscript>
+
+        {{-- 5. CSS only — Vite injects app.css as a <link> which is non-blocking.
+                 app.js is intentionally excluded here; it is loaded at end of <body>. --}}
+        @vite(['resources/css/app.css'])
+
+        {{-- 6. Livewire styles are inline <style> tags — safe to keep in <head> --}}
+        @livewireStyles
     </head>
+
     <body class="font-sans text-gray-900 antialiased">
+
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
             <div>
                 <a href="/" wire:navigate>
@@ -26,5 +56,19 @@
                 {{ $slot }}
             </div>
         </div>
+
+        {{--
+            ┌─────────────────────────────────────────────────────────┐
+            │  JS AT END OF BODY                                      │
+            │  Vite emits <script type="module"> which is deferred    │
+            │  by the browser spec, but placing it here makes the     │
+            │  intent explicit and avoids any parser blocking.        │
+            └─────────────────────────────────────────────────────────┘
+        --}}
+        @vite(['resources/js/app.js'])
+
+        {{-- Livewire scripts must come after app.js so Alpine is already loaded --}}
+        @livewireScripts
+
     </body>
 </html>
