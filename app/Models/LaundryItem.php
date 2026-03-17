@@ -49,7 +49,7 @@ class LaundryItem extends Model
      * Adjust these values to reflect your business pricing.
      */
     public static array $defaultPrices = [
-        'shirt'     => 500.00,
+        'shirt'     => 0.00,
         'trouser'   => 600.00,
         'dress'     => 800.00,
         'bedsheet'  => 1200.00,

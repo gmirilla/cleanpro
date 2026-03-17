@@ -18,17 +18,22 @@ class BookingForm extends Component
     public int   $step = 1;
     public array $selectedServices = [];
     public ?int  $address_id = null;
-    public string $service_date = '', $pickup_date = '', $notes = '';
+    //public string $service_date = '', $pickup_date = '', $notes = '';
+    public string $pickup_date = '', $notes = '';
     public string $detergent_type = 'standard', $special_instructions = '';
     public bool   $express_service = false;
+    public $service_date;
+
+
 
     /**
      * Each item: ['garment_type' => string, 'quantity' => int, 'unit_price' => float]
      * unit_price is pre-populated from LaundryItem::$defaultPrices but editable by the customer.
      */
-    public array $laundryItems = [
-        ['garment_type' => 'shirt', 'quantity' => 1, 'unit_price' => 500.00],
-    ];
+
+    //TO DO rewrite LaundryItem to use active items. This is no longer needed
+ public array $laundryItems = [['garment_type' => 'shirt', 'quantity' => 1, 'unit_price' => 0.00],];
+
 
     public float $totalAmount      = 0;
     public float $laundryItemTotal = 0; // garment-level subtotal (shown separately)
@@ -50,6 +55,7 @@ class BookingForm extends Component
     public function mount(): void
     {
         $customer = auth()->user()->customer;
+        $this->service_date = now()->format('Y-m-d\TH:i');
         if (!$customer) abort(403, 'Customer profile not found.');
 
         $default = $customer->defaultAddress();
