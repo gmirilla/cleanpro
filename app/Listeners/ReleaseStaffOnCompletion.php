@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\BookingStatusChanged;
+use App\Services\DashboardService;
 
 class ReleaseStaffOnCompletion
 {
@@ -10,10 +11,17 @@ class ReleaseStaffOnCompletion
     {
         if (!in_array($event->newStatus, ['completed', 'cancelled'])) return;
 
-        $staff = $event->booking->assignedStaff;
-        if ($staff) {
-            $staff->update(['availability_status' => 'available']);
-            $staff->recalculateRating();
+        $booking = $event->booking;
+
+        if ($booking->assignedStaff) {
+            $booking->assignedStaff->update(['availability_status' => 'available']);
+            $booking->assignedStaff->recalculateRating();
+
+            // Clear cached stats for this staff member
+            DashboardService::clearCache(staffId: $booking->assignedStaff->id);
         }
+
+        // Clear admin + customer dashboard caches
+        DashboardService::clearCache(customerId: $booking->customer_id);
     }
 }
