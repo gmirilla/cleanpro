@@ -26,11 +26,12 @@ class DashboardService
         return Cache::remember('admin_dashboard_stats', self::ADMIN_CACHE_TTL, function () {
             // 1 query instead of 4 separate Booking::count() calls
             $bookingCounts = Booking::selectRaw("
-                COUNT(*)                                                        AS total,
-                SUM(status = 'pending')                                         AS pending,
-                SUM(status IN ('confirmed','assigned','in_progress'))           AS active,
-                SUM(status = 'completed' AND DATE(completed_at) = CURDATE())   AS completed_today
-            ")->first();
+    COUNT(*) AS total,
+    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending,
+    SUM(CASE WHEN status IN ('confirmed','assigned','in_progress') THEN 1 ELSE 0 END) AS active,
+    SUM(CASE WHEN status = 'completed' AND DATE(completed_at) = DATE('now') THEN 1 ELSE 0 END) AS completed_today
+")->first();
+
 
             // 1 query instead of 2 separate Staff::count() calls
             $staffCounts = Staff::selectRaw("
@@ -39,12 +40,21 @@ class DashboardService
             ")->first();
 
             // 1 query instead of 2 separate Payment::sum() calls
-            $revenueCounts = Payment::where('payment_status', 'completed')
-                ->selectRaw("
-                    SUM(amount)                                                      AS total_revenue,
-                    SUM(CASE WHEN MONTH(paid_at) = ? AND YEAR(paid_at) = ? THEN amount ELSE 0 END) AS monthly_revenue
-                ", [now()->month, now()->year])
-                ->first();
+          $startOfMonth = now()->startOfMonth();
+$endOfMonth   = now()->endOfMonth();
+
+$revenueCounts = Payment::where('payment_status', 'completed')
+    ->selectRaw("
+        SUM(amount) AS total_revenue,
+        SUM(
+            CASE 
+                WHEN paid_at >= ? AND paid_at <= ? 
+                THEN amount 
+                ELSE 0 
+            END
+        ) AS monthly_revenue
+    ", [$startOfMonth, $endOfMonth])
+    ->first();
 
             return [
                 'total_bookings'    => (int) $bookingCounts->total,
@@ -157,16 +167,20 @@ class DashboardService
     private function revenueChart(int $months = 6): array
     {
         return Payment::where('payment_status', 'completed')
-            ->where('paid_at', '>=', now()->subMonths($months)->startOfMonth())
-            ->selectRaw("
-                DATE_FORMAT(paid_at, '%Y-%m')   AS month_key,
-                DATE_FORMAT(paid_at, '%b %Y')   AS label,
-                SUM(amount)                     AS total
-            ")
-            ->groupByRaw("DATE_FORMAT(paid_at, '%Y-%m'), DATE_FORMAT(paid_at, '%b %Y')")
-            ->orderBy('month_key')
-            ->pluck('total', 'label')
-            ->toArray();
+    ->where('paid_at', '>=', now()->subMonths($months)->startOfMonth())
+    ->selectRaw("
+        DATE(paid_at, 'start of month') AS month_key,
+        SUM(amount) AS total
+    ")
+    ->groupBy('month_key')
+    ->orderBy('month_key')
+    ->get()
+    ->mapWithKeys(function ($row) {
+        return [
+            \Carbon\Carbon::parse($row->month_key)->format('M Y') => $row->total
+        ];
+    })
+    ->toArray();
     }
 
     /**
@@ -181,7 +195,7 @@ class DashboardService
             ->orderByDesc('total_booked')
             ->limit($limit)
             ->get()
-            ->map(fn ($r) => ['name' => $r->name, 'total_booked' => $r->total_booked])
+            ->map(fn($r) => ['name' => $r->name, 'total_booked' => $r->total_booked])
             ->toArray();
     }
 
@@ -201,7 +215,7 @@ class DashboardService
             ->orderByDesc('staff.completed_jobs')
             ->limit($limit)
             ->get()
-            ->map(fn ($s) => [
+            ->map(fn($s) => [
                 'name'           => $s->name,
                 'rating'         => $s->rating,
                 'completed_jobs' => $s->completed_jobs,

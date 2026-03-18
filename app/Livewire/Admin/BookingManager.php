@@ -57,6 +57,11 @@ class BookingManager extends Component
     {
         $this->viewingId = null;
     }
+    public function closeView(): void
+{
+    $this->viewingId = null;
+}
+
 
     // ── Confirm booking ──────────────────────────────────────────
 
