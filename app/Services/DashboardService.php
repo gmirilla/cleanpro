@@ -181,6 +181,8 @@ $revenueCounts = Payment::where('payment_status', 'completed')
         ];
     })
     ->toArray();
+
+
     }
 
     /**
@@ -223,4 +225,17 @@ $revenueCounts = Payment::where('payment_status', 'completed')
             ])
             ->toArray();
     }
+
+    function monthStartExpression($column = 'paid_at')
+{
+    $driver = config('database.default');
+
+    if ($driver === 'sqlite') {
+        return "DATE($column, 'start of month')";
+    }
+
+    // MySQL
+    return "DATE_FORMAT($column, '%Y-%m-01')";
+}
+
 }
