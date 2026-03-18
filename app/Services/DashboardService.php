@@ -164,26 +164,24 @@ $revenueCounts = Payment::where('payment_status', 'completed')
     /**
      * Aggregate revenue by month entirely in the DB — no more ->get() + PHP groupBy.
      */
-    private function revenueChart(int $months = 6): array
-    {
-        return Payment::where('payment_status', 'completed')
-    ->where('paid_at', '>=', now()->subMonths($months)->startOfMonth())
-    ->selectRaw("
-        DATE(paid_at, 'start of month') AS month_key,
-        SUM(amount) AS total
-    ")
-    ->groupBy('month_key')
-    ->orderBy('month_key')
-    ->get()
-    ->mapWithKeys(function ($row) {
-        return [
-            \Carbon\Carbon::parse($row->month_key)->format('M Y') => $row->total
-        ];
-    })
-    ->toArray();
-
-
-    }
+private function revenueChart(int $months = 6): array
+{
+    return Payment::where('payment_status', 'completed')
+        ->where('paid_at', '>=', now()->subMonths($months)->startOfMonth())
+        ->get()
+        ->groupBy(function ($payment) {
+            return $payment->paid_at->format('Y-m');
+        })
+        ->map(function ($group) {
+            return [
+                'label' => $group->first()->paid_at->format('M Y'),
+                'total' => $group->sum('amount'),
+            ];
+        })
+        ->sortKeys()
+        ->pluck('total', 'label')
+        ->toArray();
+}
 
     /**
      * Top services — already uses a DB join; no changes needed here.
