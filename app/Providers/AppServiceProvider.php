@@ -22,6 +22,8 @@ use App\Repositories\CustomerRepository;
 use App\Repositories\StaffRepository;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
+
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,6 +41,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Schema::defaultStringLength(191);
+
         // Register policies
         Gate::policy(Booking::class,      BookingPolicy::class);
         Gate::policy(Service::class,      ServicePolicy::class);
