@@ -28,9 +28,14 @@ class PaymentCheckout extends Component
      */
     public function mount(Invoice $invoice): void
     {
-        // Authorise: only the booking's customer can pay
+        $invoice->loadMissing('booking.customer');
+
+        $booking = $invoice->booking;
+
+        abort_unless($booking, 403, 'Booking not found.');
+        abort_unless($booking->customer, 403, 'Customer profile not found.');
         abort_unless(
-            $invoice->booking->customer->user_id === auth()->id(),
+            $booking->customer->user_id === auth()->id(),
             403,
             'You are not authorised to pay this invoice.'
         );
