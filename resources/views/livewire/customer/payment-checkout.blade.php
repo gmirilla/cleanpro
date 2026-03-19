@@ -27,10 +27,12 @@
                         </div>
                     @endforeach
 
-                    <div class="flex justify-between text-gray-500 border-t border-gray-100 pt-2">
-                        <span>VAT (7.5%)</span>
-                        <span>₦{{ number_format($invoice->tax, 2) }}</span>
-                    </div>
+                    @if(\App\Services\InvoiceService::vatEnabled() && $invoice->tax > 0)
+                        <div class="flex justify-between text-gray-500 border-t border-gray-100 pt-2">
+                            <span>{{ \App\Services\InvoiceService::vatLabel() }}</span>
+                            <span>₦{{ number_format($invoice->tax, 2) }}</span>
+                        </div>
+                    @endif
 
                     @if($invoice->discount > 0)
                         <div class="flex justify-between text-green-600">

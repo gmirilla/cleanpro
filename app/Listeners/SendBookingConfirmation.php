@@ -8,6 +8,13 @@ use App\Services\DashboardService;
 
 class SendBookingConfirmation
 {
+    protected DashboardService $dashboard;
+
+    public function __construct(DashboardService $dashboard)
+    {
+        $this->dashboard = $dashboard;
+    }
+
     public function handle(BookingCreated $event): void
     {
         $event->booking->customer->user->notify(
@@ -15,6 +22,6 @@ class SendBookingConfirmation
         );
 
         // Bust admin dashboard cache so new booking shows immediately
-        DashboardService::clearCache();
+        $this->dashboard->clearCache();
     }
 }

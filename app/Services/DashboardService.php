@@ -82,6 +82,13 @@ $revenueCounts = Payment::where('payment_status', 'completed')
         Cache::forget('admin_dashboard_stats');
     }
 
+        public function clearCache()
+    {
+        //cache clearing logic
+        cache()->forget('dashboard_stats');
+    }
+
+
     // ──────────────────────────────────────────────────────────────
     // Staff Stats
     // ──────────────────────────────────────────────────────────────
@@ -198,6 +205,7 @@ private function revenueChart(int $months = 6): array
             ->map(fn($r) => ['name' => $r->name, 'total_booked' => $r->total_booked])
             ->toArray();
     }
+
 
     /**
      * Staff performance — select only the columns we need, no extra hydration.

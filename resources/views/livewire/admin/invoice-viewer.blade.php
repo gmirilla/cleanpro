@@ -98,10 +98,14 @@
                     <span>Subtotal</span>
                     <span>₦{{ number_format($viewingInvoice->amount, 2) }}</span>
                 </div>
-                <div class="flex justify-between text-gray-600">
-                    <span>Tax (7.5%)</span>
-                    <span>₦{{ number_format($viewingInvoice->tax, 2) }}</span>
-                </div>
+
+                @if(\App\Services\InvoiceService::vatEnabled() && $viewingInvoice->tax > 0)
+                    <div class="flex justify-between text-gray-600">
+                        <span>{{ \App\Services\InvoiceService::vatLabel() }}</span>
+                        <span>₦{{ number_format($viewingInvoice->tax, 2) }}</span>
+                    </div>
+                @endif
+
                 <div class="flex justify-between text-gray-600">
                     <span>Discount</span>
                     <span>- ₦{{ number_format($viewingInvoice->discount, 2) }}</span>

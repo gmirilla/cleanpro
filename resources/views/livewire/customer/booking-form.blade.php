@@ -130,7 +130,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Service Date & Time *</label>
                     <input wire:model="service_date" type="datetime-local" value="{{ now()->format('Y-m-d\TH:i') }}"
- min="{{ now()->format('Y-m-d\TH:i') }}"
+                        min="{{ now()->format('Y-m-d\TH:i') }}"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
                     @error('service_date')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>

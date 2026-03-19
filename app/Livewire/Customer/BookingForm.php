@@ -55,7 +55,7 @@ class BookingForm extends Component
     public function mount(): void
     {
         $customer = auth()->user()->customer;
-        $this->service_date = now()->format('Y-m-d\TH:i');
+        $this->service_date = now()->addHours(2)->format('Y-m-d\TH:i');
         if (!$customer) abort(403, 'Customer profile not found.');
 
         $default = $customer->defaultAddress();

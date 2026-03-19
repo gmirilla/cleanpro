@@ -44,14 +44,20 @@
                 <div class="flex justify-between text-gray-500">
                     <span>Subtotal</span><span>₦{{ number_format($invoice->amount, 2) }}</span>
                 </div>
-                <div class="flex justify-between text-gray-500">
-                    <span>VAT (7.5%)</span><span>₦{{ number_format($invoice->tax, 2) }}</span>
-                </div>
+
+                @if(\App\Services\InvoiceService::vatEnabled() && $invoice->tax > 0)
+                    <div class="flex justify-between text-gray-500">
+                        <span>{{ \App\Services\InvoiceService::vatLabel() }}</span>
+                        <span>₦{{ number_format($invoice->tax, 2) }}</span>
+                    </div>
+                @endif
+
                 @if($invoice->discount > 0)
                     <div class="flex justify-between text-green-600">
                         <span>Discount</span><span>- ₦{{ number_format($invoice->discount, 2) }}</span>
                     </div>
                 @endif
+
                 <div class="flex justify-between font-bold text-gray-800 text-base border-t border-gray-200 pt-3 mt-2">
                     <span>Total</span><span>₦{{ number_format($invoice->total, 2) }}</span>
                 </div>
