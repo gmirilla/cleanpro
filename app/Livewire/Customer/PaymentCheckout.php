@@ -35,7 +35,7 @@ class PaymentCheckout extends Component
         abort_unless($booking, 403, 'Booking not found.');
         abort_unless($booking->customer, 403, 'Customer profile not found.');
         abort_unless(
-            $booking->customer->user_id === auth()->id(),
+            $booking->customer->user_id == auth()->id(),
             403,
             'You are not authorised to pay this invoice.'
         );
