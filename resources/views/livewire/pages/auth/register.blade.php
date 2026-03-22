@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Customer;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,9 +31,17 @@ new #[Layout('layouts.guest')] class extends Component
 
         event(new Registered($user = User::create($validated)));
 
+        $customer = Customer::create(['user_id' => $user->id]);
+
+
+
         Auth::login($user);
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        #$this->redirect(route('dashboard', absolute: false), navigate: true);
+                $this->redirectIntended(
+    default: auth()->user()->getDashboardRoute(),
+    navigate: true
+);
     }
 }; ?>
 

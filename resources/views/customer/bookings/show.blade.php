@@ -30,6 +30,40 @@
                             <span class="font-semibold text-gray-700">₦{{ number_format($item->subtotal, 2) }}</span>
                         </div>
                     @endforeach
+                               @if($booking->laundryOrder)
+            <div class="bg-white rounded-xl border border-gray-100 p-5">
+                <h3 class="font-semibold text-gray-700 mb-4">Laundry Order</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                    @if($booking->laundryOrder->weight)
+                        <div><p class="text-gray-400 text-xs">Weight</p><p class="font-medium">{{ $booking->laundryOrder->weight }}kg</p></div>
+                    @endif
+                    <div><p class="text-gray-400 text-xs">Detergent</p><p class="font-medium">{{ ucfirst(str_replace('_',' ',$booking->laundryOrder->detergent_type)) }}</p></div>
+                    @if($booking->laundryOrder->express_service)
+                        <div><p class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full inline-block">⚡ Express Service</p></div>
+                    @endif
+                </div>
+                @if($booking->laundryOrder->items->count())
+                <table class="w-full text-sm">
+                    <thead><tr class="text-xs text-gray-400 border-b"><th class="text-left pb-1">Garment</th>
+                        <th class="text-center pb-1">Qty</th><th>Cost </th><th class="text-left pb-1">Status</th></tr></thead>
+                    <tbody>
+                        @foreach($booking->laundryOrder->items as $item)
+                        <tr class="border-b border-gray-50">
+                            <td class="py-1.5">{{ ucfirst($item->garment_type) }}</td>
+                            <td class="text-center py-1.5">{{ $item->quantity }}</td>
+                            <td class="text-center py-1.5">₦{{ number_format($item->subtotal, 2) }}</td>
+                            <td class="py-1.5">
+                                <span class="px-2 py-0.5 rounded-full text-xs bg-{{ $item->status_badge_color }}-100 text-{{ $item->status_badge_color }}-700">
+                                    {{ ucfirst($item->status) }}
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @endif
+            </div>
+            @endif
                     <div class="flex justify-between font-bold text-gray-800 pt-2">
                         <span>Total</span>
                         <span>₦{{ number_format($booking->total_amount, 2) }}</span>
@@ -62,38 +96,6 @@
                 </div>
             </div>
 
-            @if($booking->laundryOrder)
-            <div class="bg-white rounded-xl border border-gray-100 p-5">
-                <h3 class="font-semibold text-gray-700 mb-4">Laundry Order</h3>
-                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
-                    @if($booking->laundryOrder->weight)
-                        <div><p class="text-gray-400 text-xs">Weight</p><p class="font-medium">{{ $booking->laundryOrder->weight }}kg</p></div>
-                    @endif
-                    <div><p class="text-gray-400 text-xs">Detergent</p><p class="font-medium">{{ ucfirst(str_replace('_',' ',$booking->laundryOrder->detergent_type)) }}</p></div>
-                    @if($booking->laundryOrder->express_service)
-                        <div><p class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full inline-block">⚡ Express Service</p></div>
-                    @endif
-                </div>
-                @if($booking->laundryOrder->items->count())
-                <table class="w-full text-sm">
-                    <thead><tr class="text-xs text-gray-400 border-b"><th class="text-left pb-1">Garment</th><th class="text-center pb-1">Qty</th><th class="text-left pb-1">Status</th></tr></thead>
-                    <tbody>
-                        @foreach($booking->laundryOrder->items as $item)
-                        <tr class="border-b border-gray-50">
-                            <td class="py-1.5">{{ ucfirst($item->garment_type) }}</td>
-                            <td class="text-center py-1.5">{{ $item->quantity }}</td>
-                            <td class="py-1.5">
-                                <span class="px-2 py-0.5 rounded-full text-xs bg-{{ $item->status_badge_color }}-100 text-{{ $item->status_badge_color }}-700">
-                                    {{ ucfirst($item->status) }}
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                @endif
-            </div>
-            @endif
 
             @if($booking->photos->count())
             <div class="bg-white rounded-xl border border-gray-100 p-5">

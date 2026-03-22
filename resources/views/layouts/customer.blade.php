@@ -31,6 +31,10 @@
                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
                    + Book Now
                 </a>
+                <a href="{{ route('customer.profile') }}"
+   class="{{ request()->routeIs('customer.profile') ? 'text-indigo-600 font-medium' : 'text-gray-600 hover:text-indigo-600' }}">
+   Profile
+</a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="text-gray-500 hover:text-gray-700 text-sm">Logout</button>

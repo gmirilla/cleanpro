@@ -49,12 +49,12 @@ class LaundryItem extends Model
      * Adjust these values to reflect your business pricing.
      */
     public static array $defaultPrices = [
-        'shirt'     => 0.00,
-        'trouser'   => 600.00,
-        'dress'     => 800.00,
-        'bedsheet'  => 1200.00,
-        'curtain'   => 1500.00,
-        'others'    => 400.00,
+        'shirt_old'     => 0.00,
+        'trouser_old'   => 600.00,
+        'dress_old'     => 800.00,
+        'bedsheet_old'  => 1200.00,
+        'curtain_old'   => 1500.00,
+        'others_old'    => 4000.00,
     ];
 
     /**
@@ -62,7 +62,11 @@ class LaundryItem extends Model
      */
     public static function defaultPriceFor(string $garmentType): float
     {
-        return self::$defaultPrices[$garmentType] ?? 400.00;
+        $price = GarmentPrice::query()
+            ->where('garment_type', $garmentType)
+            ->where('is_active', true)
+            ->value('price');
+        return $price !== null ? (float) $price : 0.00;
     }
 
     // ── Relationships ────────────────────────────────────────────

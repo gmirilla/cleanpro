@@ -19,6 +19,7 @@ use App\Livewire\Customer\CustomerDashboard;
 use App\Livewire\Customer\PaymentCheckout;
 use App\Livewire\Staff\StaffTaskBoard;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Customer\CustomerProfile;
 
 // ── Public ─────────────────────────────────────────────────────
 Route::get('/', fn () => redirect()->route('login'));
@@ -81,9 +82,14 @@ Route::middleware(['auth', 'role:customer'])
 
         // Livewire checkout — uses {invoice} model binding matched by mount(Invoice $invoice)
         Route::get('/checkout/{invoice}', PaymentCheckout::class)->name('checkout');
+
+        Route::get('/profile', CustomerProfile::class)->name('profile');
+
     });
 
 // ── Post-login fallback redirect ────────────────────────────────
 Route::middleware('auth')->get('/home', function () {
     return redirect(auth()->user()->getDashboardRoute());
 })->name('home');
+
+

@@ -306,13 +306,7 @@
                             class="font-medium text-gray-800">₦{{ number_format($svc->base_price * $selectedServices[$id], 2) }}</span>
                     </div>
                 @endforeach
-                <div class="flex justify-between font-bold text-gray-800 pt-3 mt-1 border-t border-gray-200 text-sm">
-                    <span>Services Total</span>
-                    <span>₦{{ number_format($totalAmount, 2) }}</span>
-                </div>
-            </div>
-
-            {{-- Laundry garments (if applicable) --}}
+                            {{-- Laundry garments (if applicable) --}}
             @if (!empty($laundryItems) && $garmentPrices->isNotEmpty())
                 <div class="bg-white rounded-xl border border-gray-200 p-6">
                     <p class="font-semibold text-gray-700 mb-3">👕 Garment Breakdown</p>
@@ -343,6 +337,13 @@
                     </div>
                 </div>
             @endif
+                <div class="flex justify-between font-bold text-gray-800 pt-3 mt-1 border-t border-gray-200 text-sm">
+                    <span>Services Total</span>
+                    <span>₦{{ number_format($totalAmount, 2) }}</span>
+                </div>
+            </div>
+
+
 
             {{-- Booking info --}}
             <div class="bg-white rounded-xl border border-gray-200 p-6 text-sm space-y-2">

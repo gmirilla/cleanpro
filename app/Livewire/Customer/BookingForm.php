@@ -3,6 +3,7 @@
 namespace App\Livewire\Customer;
 
 use App\Models\LaundryItem;
+use App\Models\GarmentPrice;
 use App\Models\Service;
 use App\Services\BookingService;
 use App\Services\LaundryService;
@@ -32,7 +33,9 @@ class BookingForm extends Component
      */
 
     //TO DO rewrite LaundryItem to use active items. This is no longer needed
- public array $laundryItems = [['garment_type' => 'shirt', 'quantity' => 1, 'unit_price' => 0.00],];
+ //public array $laundryItems = [['garment_type' => 'shirt', 'quantity' => 1, 'unit_price' => 0.00],];
+
+ public array $laundryItems = [];
 
 
     public float $totalAmount      = 0;
@@ -60,6 +63,7 @@ class BookingForm extends Component
 
         $default = $customer->defaultAddress();
         if ($default) $this->address_id = $default->id;
+
     }
 
     // ── Service selection ────────────────────────────────────────
@@ -88,11 +92,16 @@ class BookingForm extends Component
 
     public function addLaundryItem(): void
     {
-        $this->laundryItems[] = [
-            'garment_type' => 'shirt',
-            'quantity'     => 1,
-            'unit_price'   => LaundryItem::defaultPriceFor('shirt'),
-        ];
+    $firstGarment = \App\Models\GarmentPrice::active()
+        ->orderBy('label')
+        ->first();
+
+    $this->laundryItems[] = [
+        'garment_type' => $firstGarment?->garment_type ?? 'N/A',
+        'quantity'     => 1,
+        'unit_price'   => (float) ($firstGarment?->price ?? 0.00),
+    ];
+
         $this->recalculateTotal();
     }
 
@@ -212,11 +221,11 @@ public function nextStep(): void
         // Garment-level laundry total
         $this->laundryItemTotal = 0;
         foreach ($this->laundryItems as $item) {
-            $price    = (float) ($item['unit_price'] ?? LaundryItem::defaultPriceFor($item['garment_type'] ?? 'others'));
+            $price    = (float) ($item['unit_price'] ?? 0.00);
             $quantity = (int) ($item['quantity'] ?? 1);
             $this->laundryItemTotal += $price * $quantity;
         }
-
+        //Garment total Fix
         $this->totalAmount = $serviceTotal + $this->laundryItemTotal;
     }
 
@@ -237,7 +246,11 @@ public function nextStep(): void
             ? Service::whereIn('id', array_keys($this->selectedServices))->get()->keyBy('id')
             : collect();
 
-        $garmentPrices = LaundryItem::$defaultPrices;
+        $garmentPrices = GarmentPrice::query()
+            ->where('is_active',true)
+            ->orderBy('label')
+            ->get()
+            ->keyBy('garment_type');
 
         return view('livewire.customer.booking-form', compact(
             'services',
