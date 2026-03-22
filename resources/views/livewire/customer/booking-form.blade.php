@@ -57,7 +57,7 @@
                         @php $selected = isset($selectedServices[$service->id]); @endphp
                         <div wire:click="toggleService({{ $service->id }})"
                             class="cursor-pointer border-2 rounded-xl p-4 transition
-                                {{ $selected ? 'border-indigo-500 bg-blue-300' : 'border-gray-200 hover:border-indigo-300' }}">
+                                {{ $selected ? 'border-indigo-500 bg-indigo-300' : 'border-gray-200 hover:border-indigo-300' }}">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="font-semibold text-gray-800">{{ $service->name }}</p>
