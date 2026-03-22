@@ -19,9 +19,9 @@ class UpdateBookingOnPayment
         }
 
         // Bust dashboard caches so revenue totals update immediately
-        DashboardService::clearCache(
-            staffId:    $booking->assigned_staff_id,
-            customerId: $booking->customer_id
+        (new DashboardService())->clearCache(
+            $booking->assigned_staff_id,
+            $booking->customer_id
         );
     }
 }
