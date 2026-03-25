@@ -69,7 +69,7 @@ new #[Layout('layouts.guest')] class extends Component
             @if (Route::has('register'))
                 <a  href="{{ route('register') }}" wire:navigate
                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md text-sm">
-                    Register
+                    Create Account
                 </a>
             @endif
         </div>
