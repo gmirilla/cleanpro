@@ -109,46 +109,92 @@
         {{-- Step 2: Booking Details                                 --}}
         {{-- ─────────────────────────────────────────────────────── --}}
     @elseif($step === 2)
-        <div class="mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-1">Booking Details</h2>
+       <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Booking Details</h2>
+    <p class="text-sm text-gray-500">Provide service location and schedule</p>
+</div>
+
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-6">
+
+    <!-- Address -->
+    <div>
+        <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-semibold text-gray-700">
+                Delivery Address <span class="text-red-500">*</span>
+            </label>
+
+<button type="button"
+    wire:click="openAddressModal"
+    class="text-xs text-green-600 hover:text-green-700 border border-green-200 hover:border-green-400 px-3 py-1 rounded-lg transition">
+    + Add Address
+</button>
         </div>
-        <div class="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Address *</label>
-                <select wire:model="address_id"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
-                    <option value="">Select address…</option>
-                    @foreach ($addresses as $addr)
-                        <option value="{{ $addr->id }}">{{ $addr->label }}: {{ $addr->full_address }}</option>
-                    @endforeach
-                </select>
-                @error('address_id')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Service Date & Time *</label>
-                    <input wire:model="service_date" type="datetime-local" value="{{ now()->format('Y-m-d\TH:i') }}"
-                        min="{{ now()->format('Y-m-d\TH:i') }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
-                    @error('service_date')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Pickup Date (Laundry)</label>
-                    <input wire:model="pickup_date" type="datetime-local" min="{{ now()->format('Y-m-d\TH:i') }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Special Notes</label>
-                <textarea wire:model="notes" rows="3"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none resize-none"
-                    placeholder="Any special instructions…"></textarea>
-            </div>
+
+        <select wire:model="address_id"
+            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm 
+                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+            <option value="">Select address…</option>
+            @foreach ($addresses as $addr)
+                <option value="{{ $addr->id }}">
+                    {{ $addr->label }}: {{ $addr->full_address }}
+                </option>
+            @endforeach
+        </select>
+
+        @error('address_id')
+            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Dates -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <!-- Service Date -->
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">
+                Service Date & Time <span class="text-red-500">*</span>
+            </label>
+
+            <input wire:model="service_date"
+                type="datetime-local"
+                value="{{ now()->format('Y-m-d\TH:i') }}"
+                min="{{ now()->format('Y-m-d\TH:i') }}"
+                class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm
+                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+
+            @error('service_date')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            @enderror
         </div>
+
+        <!-- Pickup Date -->
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">
+                Pickup Date (Laundry)
+            </label>
+
+            <input wire:model="pickup_date"
+                type="datetime-local"
+                min="{{ now()->format('Y-m-d\TH:i') }}"
+                class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm
+                       focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition">
+        </div>
+
+    </div>
+
+    <!-- Notes -->
+    <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">
+            Special Instructions
+        </label>
+
+        <textarea wire:model="notes" rows="3"
+            class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm
+                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition"
+            placeholder="e.g. Handle fragile items with care, gate code, preferred detergent..."></textarea>
+    </div>
+
+</div>
 
         {{-- ─────────────────────────────────────────────────────── --}}
         {{-- Step 3: Laundry Details                                 --}}
@@ -410,4 +456,94 @@
             </button>
         @endif
     </div>
+
+@if($showAddressModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center">
+
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/40" wire:click="closeAddressModal"></div>
+
+        <!-- Modal -->
+        <div class="relative bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 z-10">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Add New Address</h3>
+                <button wire:click="closeAddressModal" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+
+            <!-- Form -->
+            <div class="space-y-4">
+
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Label *</label>
+                        <select wire:model="addr_label"
+                                class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+                            <option value="Home">🏠 Home</option>
+                            <option value="Office">🏢 Office</option>
+                            <option value="Other">📍 Other</option>
+                        </select>
+                        @error('addr_label') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Street Address *</label>
+                        <input wire:model="addr_address" type="text" placeholder="15 Admiralty Way, Lekki Phase 1"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+                        @error('addr_address') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">City *</label>
+                            <input wire:model="addr_city" type="text" placeholder="Lagos"
+                                   class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+                            @error('addr_city') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
+                            <input wire:model="addr_state" type="text" placeholder="Lagos"
+                                   class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+                            @error('addr_state') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Postal Code</label>
+                        <input wire:model="addr_postal_code" type="text" placeholder="100001"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+                    </div>
+
+                    <label class="flex items-center gap-3 cursor-pointer bg-gray-50 rounded-xl p-3.5">
+                        <input wire:model="addr_is_default" type="checkbox"
+                               class="rounded border-gray-300 text-indigo-600 w-4 h-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">Set as default address</p>
+                            <p class="text-xs text-gray-400">Used automatically for new bookings</p>
+                        </div>
+                    </label>
+                </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 mt-6">
+                <button wire:click="closeAddressModal"
+                    class="px-4 py-2 text-sm border rounded-lg text-gray-600 hover:bg-gray-100">
+                    Cancel
+                </button>
+
+                <button wire:click="saveAddress"
+                    wire:loading.attr="disabled"
+                    class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+
+                    <span wire:loading.remove>Save Address</span>
+                    <span wire:loading>Saving...</span>
+
+                </button>
+            </div>
+
+        </div>
+    </div>
+@endif
 </div>

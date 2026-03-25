@@ -45,17 +45,69 @@
 
     <body class="font-sans text-gray-900 antialiased">
 
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/" wire:navigate>
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
+<div class="min-h-screen flex">
+
+    <!-- LEFT: Branding / Banner -->
+    <div class="hidden lg:flex w-1/2 relative">
+
+        <!-- Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-600 to-green-500" style="background-image: url('{{ asset('assets/img/Chibi laundry staff.webp') }}'); background-position: center; background-size: contain; background-repeat: no-repeat;"></div>
+
+        <!-- Content -->
+        <div class="relative z-10 flex flex-col justify-between p-12 text-white w-full">
+
+            <!-- Logo -->
+<div>
+    <a href="/" wire:navigate class="flex items-center gap-3">
+        <x-application-logo class="w-10 h-10 fill-white" />
+    </a>
+    <p class="text-sm opacity-80 mt-1 bg-white/30 p-4 rounded-lg text-black">Professional Cleaning Services</p>
+</div>
+
+
+            <!-- Tagline -->
+            <div class="max-w-md bg-white/40 p-4 rounded-lg">
+                <h2 class="text-4xl font-bold leading-tight mb-4 text-black">
+                    Clean Spaces.<br>Healthy Living.
+                </h2>
+                <p class="text-lg opacity-100 text-black">
+                    Manage bookings, laundry, and cleaning services effortlessly. Trusted professionals delivering spotless results every time.
+                </p>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
+            <!-- Footer -->
+            <div class="text-sm  bg-gray-800/60 p-4 rounded-lg">
+                © {{ date('Y') }} Spring Cleaning Service. All rights reserved.
             </div>
+
         </div>
+    </div>
+
+
+    <!-- RIGHT: Auth Content -->
+    <div class="flex w-full lg:w-1/2 items-center justify-center bg-gray-50 px-6 py-12">
+
+        <div class="w-full max-w-md">
+
+            <!-- Mobile Logo -->
+            <div class="lg:hidden mb-6 text-center">
+                <a href="/" wire:navigate>
+                    <x-application-logo class="w-16 h-16 mx-auto fill-blue-600" />
+                </a>
+                <h1 class="mt-3 text-xl font-bold text-gray-800">Spring Cleaning Services</h1>
+            </div>
+
+            <!-- Card -->
+            <div class="bg-white shadow-xl rounded-2xl px-8 py-6">
+
+                {{ $slot }}
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
 
         {{--
             ┌─────────────────────────────────────────────────────────┐

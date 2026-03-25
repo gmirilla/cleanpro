@@ -309,15 +309,6 @@
             @endif
         </div>
 
-        {{-- Danger zone --}}
-        <div class="bg-red-50 rounded-2xl border border-red-100 p-6">
-            <h3 class="text-base font-semibold text-red-800 mb-1">Danger Zone</h3>
-            <p class="text-sm text-red-600 mb-4">These actions are permanent and cannot be undone.</p>
-            <a href="{{ route('profile') }}"
-               class="text-sm text-red-600 hover:text-red-800 border border-red-300 hover:border-red-500 px-4 py-2 rounded-lg transition inline-flex items-center gap-2">
-                🗑 Delete Account
-            </a>
-        </div>
 
     </div>
     @endif

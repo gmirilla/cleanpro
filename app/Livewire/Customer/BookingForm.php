@@ -5,6 +5,7 @@ namespace App\Livewire\Customer;
 use App\Models\LaundryItem;
 use App\Models\GarmentPrice;
 use App\Models\Service;
+use App\Models\Address;
 use App\Services\BookingService;
 use App\Services\LaundryService;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +42,16 @@ class BookingForm extends Component
     public float $totalAmount      = 0;
     public float $laundryItemTotal = 0; // garment-level subtotal (shown separately)
 
+        // ── Address Management ───────────────────────────────────────
+    public bool   $showAddressModal  = false;
+    public ?int   $editingAddressId  = null;
+    public string $addr_label        = 'Home';
+    public string $addr_address      = '';
+    public string $addr_city         = '';
+    public string $addr_state        = '';
+    public string $addr_postal_code  = '';
+    public bool   $addr_is_default   = false;
+
     protected function rules(): array
     {
         return match ($this->step) {
@@ -53,6 +64,17 @@ class BookingForm extends Component
 3 => ['detergent_type'=>'required','laundryItems'=>'array','laundryItems.*.garment_type'=>'required','laundryItems.*.quantity'=>'required|numeric|min:1'], 
             default => [],
         };
+    }
+        protected function addressRules(): array
+    {
+
+        return [
+            'addr_label'   => 'required|string|max:50',
+            'addr_address' => 'required|string|max:255',
+            'addr_city'    => 'required|string|max:100',
+            'addr_state'   => 'required|string|max:100',
+            'addr_postal_code' => 'nullable|string|max:20',
+        ];
     }
 
     public function mount(): void
@@ -259,4 +281,59 @@ public function nextStep(): void
             'garmentPrices',
         ));
     }
+
+
+public function openAddressModal()
+{
+    $this->resetValidation();
+        $this->addr_label       = 'Home';
+        $this->addr_address     = '';
+        $this->addr_city        = '';
+        $this->addr_state       = '';
+        $this->addr_postal_code = '';
+        $this->addr_is_default  = false;
+
+    $this->showAddressModal = true;
+}
+
+public function closeAddressModal()
+{
+    $this->showAddressModal = false;
+}
+
+public function saveAddress()
+{
+ $this->validate($this->addressRules());
+      $customer = auth()->user()->customer;
+  if ($this->addr_is_default) {
+            $customer->addresses()->update(['is_default' => false]);
+        }
+
+        $data = [
+            'customer_id' => $customer->id,
+            'label'       => $this->addr_label,
+            'address'     => $this->addr_address,
+            'city'        => $this->addr_city,
+            'state'       => $this->addr_state,
+            'postal_code' => $this->addr_postal_code ?: null,
+            'is_default'  => $this->addr_is_default,
+        ];
+
+        if ($this->editingAddressId) {
+            Address::where('customer_id', $customer->id)
+                ->findOrFail($this->editingAddressId)
+                ->update($data);
+            $message = 'Address updated.';
+        } else {
+            // If this is the first address, make it default
+            if ($customer->addresses()->count() === 0) {
+                $data['is_default'] = true;
+            }
+            Address::create($data);
+            $message = 'Address added.';
+        }
+
+        $this->closeAddressModal();
+        $this->dispatch('notify', type: 'success', message: $message);
+}
 }
